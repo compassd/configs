@@ -1,6 +1,5 @@
-# maintainer: honwen
 ---
-verbosity: info
+verbosity: warn
 address: 0.0.0.0:2053
 
 table:
@@ -60,11 +59,9 @@ table:
   check_secure:
     if:
       # geoip:
-      #   path: ./data/cn.mmdb
       #   codes:
       #     - CN
       ipcidr:
-        # - ./data/ipcn.txt
         - ./data/ipcn.txt.gz
     else:
       - query: secure

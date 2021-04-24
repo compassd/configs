@@ -1,0 +1,69 @@
+# maintainer: LEXUGE
+---
+verbosity: "info"
+address: 0.0.0.0:2053
+
+table:
+  start:
+    if:
+      qtype:
+        - AAAA
+    then:
+      # A list of actions is allowed here
+      - blackhole
+      # The next tag to go
+      - end
+    else:
+      - dispatch
+  dispatch:
+    if: any
+    then:
+      - query: domestic
+      - check_secure
+  check_secure:
+    if:
+      geoip:
+        path: ./data/cn.mmdb
+        codes:
+          - CN
+    else:
+      - query: secure
+      - end
+
+upstreams:
+  114DNS:
+    udp:
+      addr: 114.114.114.114:53
+
+  aliUDP:
+    udp:
+      addr: 223.6.6.6:53
+
+  aliDoT:
+    tls:
+      no_sni: false
+      name: dns.alidns.com
+      addr: 223.6.6.6:853
+
+  domestic:
+    hybrid:
+      - 114DNS
+      - aliUDP
+      - aliDoT
+
+  cloudflareDoH:
+    https:
+      no_sni: true
+      name: cloudflare-dns.com
+      addr: 162.159.36.1:443
+
+  quad9DoT:
+    tls:
+      no_sni: true
+      name: dns11.quad9.net
+      addr: 9.9.9.11:853
+
+  secure:
+    hybrid:
+      - cloudflareDoH
+      - quad9DoT

@@ -1,0 +1,27 @@
+# maintainer: honwen
+---
+verbosity: "info"
+address: 0.0.0.0:2053
+
+table:
+  start:
+    if:
+      domain:
+        - file: ./data/blacklist.gz
+    then:
+      - query: secure
+      - end
+    else:
+      - query: domestic
+      - end
+upstreams:
+  domestic:
+    udp:
+      addr: 114.114.114.114:53
+      timeout: 1
+  secure:
+    https:
+      timeout: 2
+      no_sni: false
+      name: dns.quad9.net
+      addr: 9.9.9.9:443
