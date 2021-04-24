@@ -11,32 +11,6 @@ Under `data/` you can find all the usual data files you may find useful (IPCIDR 
 
 Under `configs/` you can find user-contributed configuration files useful under various scenarios (e.g. circumvent DNS pollution or protect privacy).
 
-# Examples
-
-- dispatch-hyper: `DisableIPv6` + `AS24424-Avoid` + `Blacklist` + `ChinaDNS`
-
-  ```bash
-  dcompass -c configs/example_full.yaml
-  ```
-
-- dispatch-base: `DisableIPv6` + `ChinaDNS`
-
-  ```bash
-  dcompass -c configs/example_base.yaml
-  ```
-
-- dispatch-whitelist
-
-  ```bash
-  dcompass -c configs/example_whitelist.yaml
-  ```
-
-- dispatch-blacklist
-
-  ```bash
-  dcompass -c configs/example_blacklist.yaml
-  ```
-
 # Contribute
 
 Just add your configuration file to `configs/`, everything will be recursively visited and checked using CI.
