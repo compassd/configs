@@ -53,9 +53,9 @@
                   findutils
                 ]
               }
-              find ./configs -type f -name '*.yaml' -exec dcompass -v -c '{}' +
-              find ./configs -type f -name '*.yml' -exec dcompass -v -c '{}' +
-              find ./configs -type f -name '*.json' -exec dcompass -v -c '{}' +
+              find ./configs -type f -name '*.yaml' | xargs -I{} dcompass -v -c {}
+              find ./configs -type f -name '*.yml' | xargs -I{} dcompass -v -c {}
+              find ./configs -type f -name '*.json' | xargs -I{} dcompass -v -c {}
             '';
         };
         commit = utils.lib.mkApp {
