@@ -28,5 +28,6 @@ jobs:
 
       # Run the general flake checks
       - run: |
+          nix flake update --recreate-lock-file
           nix run .#update
           nix run
