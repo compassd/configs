@@ -102,8 +102,23 @@ upstreams:
   quad9DoH:
     https:
       no_sni: true
-      name: dns.quad9.net
-      addr: 149.112.112.112:443
+      name: dns11.quad9.net
+      addr: 149.112.112.11:443
+
+  quad9DoH2:
+    https:
+      no_sni: true
+      name: dns11.quad9.net
+      addr: 149.112.112.11:5053
+
+  # TCP UPSTREAMS EXAMPLES
+  # quad9TCP:
+  #   tcp:
+  #     addr: 9.9.9.11:9953
+
+  # quad9TCP2:
+  #   tcp:
+  #     addr: 149.112.112.11:9953
 
   cloudflareDoH:
     https:
@@ -172,6 +187,9 @@ upstreams:
     hybrid:
       - googleDoH
       - quad9DoH
+      - quad9DoH2
+      # - quad9TCP
+      # - quad9TCP2
       - cloudflareDoH
       - googleDoT
       - quad9DoT
@@ -184,6 +202,8 @@ upstreams:
 
   oversea:
     hybrid:
+      - quad9DoH
+      - quad9DoH2
       - opendnsDoH
       - adguardDoH
       - adguardDoT
