@@ -73,7 +73,7 @@ upstreams:
     https:
       no_sni: false
       name: doh.pub
-      addr: 162.14.21.56:443
+      addr: 1.12.12.12:443
 
   aliDoH:
     https:
@@ -85,7 +85,7 @@ upstreams:
     tls:
       no_sni: false
       name: dot.pub
-      addr: 162.14.21.178:853
+      addr: 120.53.53.53:853
 
   aliDoT:
     tls:
