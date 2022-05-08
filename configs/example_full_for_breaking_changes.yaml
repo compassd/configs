@@ -1,0 +1,223 @@
+---
+verbosity: info
+address: 0.0.0.0:2053
+
+table:
+  start:
+    if: |
+      qtype([AAAA])
+    then:
+      # force disable IPv6
+      - blackhole
+      - end
+    else:
+      - dispatch_main
+  dispatch_main:
+    if: >
+      domain([
+        qname("ytimg.com"),
+        qname("youtube.com"),
+        qname("1e100.net"),
+        qname("gvt1.com"),
+        qname("gvt2.com"),
+        qname("ggpht.com"),
+        qname("google.com"),
+        qname("gstatic.com"),
+        qname("googleapis.com"),
+        qname("googlevideo.com"),
+        qname("googleusercontent.com"),
+        qname("googlesyndication.com"),
+        qname("g.cn"),
+        qname("gkecnapps.cn"),
+        qname("googleapis.cn"),
+        qname("googlecnapps.cn"),
+        qname("gstaticcnapps.cn"),
+        qname("googleadsserving.cn"),
+      ])
+    then:
+      # force all google query with oversea to avoid AS24424
+      - query: oversea
+      - end
+    else:
+      - dispatch_secure
+  dispatch_secure:
+    if: |
+      domain([file("./data/blacklist.gz")])
+    then:
+      # force all blacklist query with secure to avoid leaking domain to domestic
+      - query: secure
+      - end
+    else:
+      - dispatch_final
+  dispatch_final:
+      # finally, query rest domain from domestic and check_secure, works like chinadns
+      - query: domestic
+      - check_secure
+  check_secure:
+    #if: |
+    #  geoip(codes: ["CN"])
+    if: | 
+      ipcidr(["./data/ipcn.txt.gz"])
+    then:
+      - end
+    else:
+      - query: secure
+      - end
+
+upstreams:
+  dnspodDoH:
+    https:
+      sni: true 
+      uri: https://doh.pub/dns-query
+      timeout: 4
+      addr: 1.12.12.12
+
+  aliDoH:
+    https:
+      sni: true
+      uri: https://dns.alidns.com/dns-query
+      addr: 223.5.5.5
+
+  dnspodDoT:
+    tls:
+      sni: true
+      domain: dot.pub
+      addr: 120.53.53.53:853
+
+  aliDoT:
+    tls:
+      sni: true
+      domain: dns.alidns.com
+      addr: 223.6.6.6:853
+
+  googleDoH:
+    https:
+      sni: false
+      uri: https://dns.google/dns-query
+      addr: 8.8.4.4
+
+  quad9DoH:
+    https:
+      sni: false
+      uri: https://dns11.quad9.net/dns-query
+      addr: 149.112.112.11
+
+  quad9DoH2:
+    https:
+      sni: false
+      uri: https://dns.quad9.net/dns-query
+      timeout: 4
+      addr: 9.9.9.9
+
+  # TCP UPSTREAMS EXAMPLES
+  # quad9TCP:
+  #   tcp:
+  #     addr: 9.9.9.11:9953
+
+  # quad9TCP2:
+  #   tcp:
+  #     addr: 149.112.112.11:9953
+
+  cloudflareDoH:
+    https:
+      sni: false
+      uri: https://cloudflare-dns.com/dns-query
+      addr: 162.159.36.1
+
+  cloudflareDoH2:
+    https:
+      sni: false
+      uri: https://cloudflare-dns.com/dns-query
+      timeout: 4
+      addr: 104.16.248.249
+
+  googleDoT:
+    tls:
+      sni: false
+      domain: dns.google
+      addr: 8.8.8.8:853
+
+  quad9DoT:
+    tls:
+      sni: false
+      domain: dns11.quad9.net
+      addr: 9.9.9.11:853
+
+  cloudflareDoT:
+    tls:
+      sni: false
+      domain: cloudflare-dns.com
+      addr: 1.1.1.1:853
+
+  opendnsDoH:
+    https:
+      sni: false
+      uri: https://doh.opendns.com/dns-query
+      addr: 146.112.41.2
+
+  adguardDoH:
+    https:
+      sni: false
+      uri: https://dns.adguard.com/dns-query
+      addr: 94.140.15.15
+
+  adguardDoT:
+    tls:
+      sni: false
+      domain: dns.adguard.com
+      addr: 94.140.14.14:853
+
+  # quad101DoH:
+  #   https:
+  #     sni: false
+  #     uri: https://dns.twnic.tw/dns-query
+  #     addr: 101.102.103.104
+
+  # quad101DoT:
+  #   tls:
+  #     sni: false
+  #     domain: dns.twnic.tw
+  #     addr: 101.101.101.101:853
+
+  # dnspod:
+  #   udp:
+  #     addr: 119.29.29.29:53
+
+  # ------------ FINAL -------------
+
+  domestic:
+    hybrid:
+      - dnspodDoH
+      - aliDoH
+      - dnspodDoT
+      - aliDoT
+      # - dnspod
+
+  secure:
+    hybrid:
+      - googleDoH
+      - quad9DoH
+      - quad9DoH2
+      # - quad9TCP
+      # - quad9TCP2
+      - cloudflareDoH
+      - googleDoT
+      - quad9DoT
+      - cloudflareDoT
+      - opendnsDoH
+      - adguardDoH
+      - adguardDoT
+      # - quad101DoH
+      # - quad101DoT
+      - cloudflareDoH2
+      - quad9DoH2
+
+  oversea:
+    hybrid:
+      - quad9DoH
+      - quad9DoH2
+      - opendnsDoH
+      - adguardDoH
+      - adguardDoT
+      # - quad101DoH
+      # - quad101DoT
